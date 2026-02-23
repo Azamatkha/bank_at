@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>To‘lov qilish</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background-image: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%);
+}
+
+.card{
+    width:420px;
+    padding:40px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(12px);
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    animation:fade .25s ease;
+}
+
+.card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+@keyframes fade{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.title{
+    font-size:26px;
+    font-weight:600;
+    color: #eaf6fb;
+}
+
+.back-home{
+    cursor:pointer;
+    color: #eaf6fb;
+    transition:.2s;
+    width:30px;
+    margin-right:5px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input{
+    padding:15px;
+    border-radius:12px;
+    border:none;
+    background:rgba(255,255,255,0.08);
+    color:white;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+.input::placeholder{
+    color: #b6d6df;
+}
+
+.input:focus{
+    outline:none;
+    box-shadow:0 0 0 2px #00fff9;
+}
+
+.btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background: #00fff9;
+    color: #083344;
+    font-weight:600;
+    font-size:15px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(0,255,249,.4);
+}
+
+.result{
+    margin-top:20px;
+    padding:18px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.06);
+    display:none;
+}
+
+.result-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:8px;
+    font-size:14px;
+    color: #fff;
+}
+
+.success{
+    margin-top:10px;
+    color: #00fff9;
+    font-weight:500;
+}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="card-top">
+    <div class="title">
+        <h3>To‘lov qilish</h3>
+    </div>
+    <div class="back-home" onclick="goHome()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    </div>
+</div>
+<div class="input-group">
+    <input class="input" id="credit_id" placeholder="Credit ID">
+    <input class="input" id="amount" placeholder="To‘lov summasi">
+</div>
+
+<button class="btn" onclick="makePayment()">To‘lash</button>
+
+<div id="resultBox" class="result"></div>
+
+</div>
+
+<script>
+function parseJwt(token){
+    try{
+        return JSON.parse(atob(token.split('.')[1]));
+    }catch(e){
+        return null;
+    }
+}
+
+function isTokenExpired(token){
+    if(!token) return true;
+    const payload = parseJwt(token);
+    if(!payload || !payload.exp) return true;
+    const now = Math.floor(Date.now()/1000);
+    return payload.exp < now;
+}
+
+function logout(){
+    localStorage.clear();
+    window.location.href="/login/";
+}
+
+const token = localStorage.getItem("access_token");
+
+if(!token || isTokenExpired(token)){
+    logout();
+}
+const payload = parseJwt(token);
+if(payload && payload.exp){
+    const expireTime = payload.exp * 1000;
+    const now = Date.now();
+    const timeout = expireTime - now;
+
+    if(timeout > 0){
+        setTimeout(logout, timeout);
+    }else{
+        logout();
+    }
+}
+
+async function makePayment(){
+    const token = localStorage.getItem("access_token");
+    if(!token){
+        window.location.href="/login/";
+        return;
+    }
+    const credit_id=document.getElementById("credit_id").value;
+    const amount=document.getElementById("amount").value;
+
+    const response = await fetch("/api/v1/bank-resurs/payment/", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer "+token
+        },
+        body:JSON.stringify({
+            credit_id:credit_id,
+            paid_amount:amount
+        })
+    });
+    if(response.status === 401){
+        logout();
+        return;
+    }
+    const data = await response.json();
+    if(response.ok){
+        showResult(data);
+    }else{
+        alert(data.error || "Xatolik");
+    }
+}
+
+function showResult(data){
+
+    const box=document.getElementById("resultBox");
+    box.style.display="block";
+    box.innerHTML = `
+        <div class="success">To‘lov muvaffaqiyatli</div>
+        <div class="result-row">
+            <span>Credit ID:</span>
+            <span>${data.credit_id}</span>
+        </div>
+        <div class="result-row">
+            <span>To‘langan summa:</span>
+            <span>${data.paid_amount}</span>
+        </div>
+        <div class="result-row">
+            <span>Qolgan qarz:</span>
+            <span>${data.credit_balance}</span>
+        </div>
+        <div class="result-row">
+            <span>Foiz to‘lovi:</span>
+            <span>${data.paid_percent_amount}</span>
+        </div>
+        <div class="result-row">
+            <span>Sana:</span>
+            <span>${new Date(data.loan_paid_date).toLocaleString("ru-UZ", {timeZone: "Asia/Tashkent"})}</span>
+        </div>
+    `;
+}
+function goHome(){
+    window.location.href = "/home/";
+}
+
+</script>
+
+</body>
+</html>

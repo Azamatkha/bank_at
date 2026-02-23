@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Kredit ma'lumotlarini qidirish</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    background:#0f2f3a;
+    background-image: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%);
+    color:#e6f3f7;
+    height:100vh;
+}
+
+.topbar{
+    padding:28px 50px;
+    font-size:24px;
+    font-weight:600;
+}
+.topbar-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.payment-btn{
+    padding:12px 18px;
+    border-radius:10px;
+    border:none;
+    background: #00fff9;
+    color: #083344;
+    font-weight:600;
+    cursor:pointer;
+    font-size:14px;
+    transition:.2s;
+}
+
+.payment-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 20px rgba(0,255,249,.3);
+}
+.search-panel{
+    padding:0 50px 25px 50px;
+    display:flex;
+    gap:16px;
+    align-items:center;
+}
+
+.input{
+    padding:20px 25px;
+    border-radius:12px;
+    border:none;
+    width:400px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    outline:none;
+}
+
+.input::placeholder{
+    color: #fff;
+}
+
+.btn{
+    padding:20px 25px;
+    width:200px;
+    border:none;
+    border-radius:12px;
+    background: #00fff9;
+    color: #083344;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.btn:hover{
+    transform:translateX(2px);
+    box-shadow:0 10px 20px rgba(0,255,249,.3);
+}
+
+.result-wrapper{
+    margin:0 50px 40px 50px;
+    padding:20px;
+    backdrop-filter:blur(8px);
+}
+
+.result-card{
+    background:rgba(255,255,255,0.04);
+    border-radius:16px;
+    backdrop-filter:blur(8px);
+}
+
+.table-box{
+    width:100%;
+    overflow:auto;
+    max-height:420px;
+}
+
+table{
+    width:100%;
+    font-size:18px;
+    min-width:1200px;
+    border-collapse:collapse;
+}
+
+th{
+    background: #00fff9;
+    color:#083344;
+    padding:10px;
+    font-size:13px;
+    position:sticky;
+    top:0;
+}
+
+td{
+    padding:10px;
+    font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    white-space:nowrap;
+}
+
+th, td{
+    text-align:left;
+    border:1px solid #ffffff43;
+}
+
+tr:hover{
+    background:rgba(255,255,255,0.05);
+}
+</style>
+</head>
+<body>
+<div class="topbar topbar-row">
+    <div><h1>Kredit ma'lumotlarini qidirish</h1></div>
+    <button class="payment-btn" onclick="goPayment()">
+        To‘lov qilish
+    </button>
+</div>
+<div class="search-panel">
+    <input class="input" type="text" id="credit_id" placeholder="Credit ID" required>
+    <input class="input" type="text" id="pnfl" placeholder="PNFL" required>
+    <button class="btn" onclick="getCredit()">Qidirish</button>
+</div>
+<div id="resultWrapper" class="result-wrapper">
+    <div class="table-box">
+        <table id="resultTable"></table>
+    </div>
+</div>
+<script>
+function parseJwt(token){
+    try{
+        return JSON.parse(atob(token.split('.')[1]));
+    }catch(e){
+        return null;
+    }
+}
+function isTokenExpired(token){
+    if(!token) return true;
+    const payload = parseJwt(token);
+    if(!payload || !payload.exp) return true;
+    const now = Math.floor(Date.now()/1000);
+    return payload.exp < now;
+}
+
+function logout(){
+    localStorage.clear();
+    window.location.href="/login/";
+}
+const token = localStorage.getItem("access_token");
+if(!token || isTokenExpired(token)){
+    logout();
+}
+const payload = parseJwt(token);
+if(payload && payload.exp){
+    const expireTime = payload.exp * 1000;
+    const now = Date.now();
+    const timeout = expireTime - now;
+
+    if(timeout > 0){
+        setTimeout(logout, timeout);
+    }else{
+        logout();
+    }
+}
+function goPayment(){
+    window.location.href = "/payment/";
+}
+async function getCredit(){
+    const token = localStorage.getItem("access_token");
+    if(!token){
+        alert("Login qiling");
+        window.location.href="/login/";
+        return;
+    }
+    const credit_id = document.getElementById("credit_id").value;
+    const pnfl = document.getElementById("pnfl").value;
+    const response = await fetch("/api/v1/bank-resurs/credit-info/", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer "+token
+        },
+        body:JSON.stringify({credit_id,pnfl})
+    });
+    if(response.status === 401){
+        logout();
+        return;
+    }
+    const data = await response.json();
+    if(response.ok){
+        renderTable(data);
+    }else{
+        alert(data.error || "Xatolik");
+    }
+}
+
+function renderTable(data){
+    const wrapper = document.getElementById("resultWrapper");
+    wrapper.innerHTML = ""; 
+    wrapper.classList.add("result-card");
+    let html = `<div class="table-box"><table>`;
+    let header="<tr>";
+    let row="<tr>";
+    for(let k in data){
+        header+=`<th>${k}</th>`;
+        row+=`<td>${data[k]}</td>`;
+    }
+    header+="</tr>";
+    row+="</tr>";
+    html += header + row + "</table></div>";
+    wrapper.innerHTML = html;
+}
+</script>
+
+</body>
+</html>
