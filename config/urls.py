@@ -26,7 +26,7 @@ urlpatterns = [
     path("api/v1/token/", TokenObtainPairView.as_view()),
 ]
 urlpatterns += [
-    path(''.TemplateView.as_view(template_name="home.html")),
+    path('',TemplateView.as_view(template_name="home.html")),
     path('login/', TemplateView.as_view(template_name="login.html")),
     path('home/', TemplateView.as_view(template_name="home.html")),
     path('payment/', TemplateView.as_view(template_name="payment.html")),
