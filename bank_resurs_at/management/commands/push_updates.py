@@ -53,7 +53,7 @@ class Command(BaseCommand):
                     BANK_AT_URL,
                     json=payload,
                     headers={"Authorization": f"Bearer {access_token}"},
-                    timeout=20
+                    timeout=40
                 )
                 if r.status_code == 401:
                     access_token = get_jwt()
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                         BANK_AT_URL,
                         json=payload,
                         headers={"Authorization": f"Bearer {access_token}"},
-                        timeout=20
+                        timeout=40
                     )
                 ok = r.status_code == 200
             except Exception:
