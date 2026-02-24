@@ -2,9 +2,11 @@ import time
 import requests
 from django.core.management.base import BaseCommand
 from bank_resurs_at.models import PaymentQueue, CreditData
+import os
 
-BANK_AT_URL = "http://127.0.0.1:8888/api/v1/bank/credit-info-update/"
-TOKEN_URL   = "http://127.0.0.1:8888/api/v1/token/"
+BASE_URL = os.environ.get("BASE_URL")
+BANK_AT_URL = f"{BASE_URL}/api/v1/bank/credit-info-update/"
+TOKEN_URL   = f"{BASE_URL}/api/v1/token/"
 USERNAME    = "bank_resurs_at"
 PASSWORD    = "Dj@ngo123"
 
