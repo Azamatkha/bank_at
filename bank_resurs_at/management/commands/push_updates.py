@@ -5,8 +5,10 @@ from bank_resurs_at.models import PaymentQueue, CreditData
 import os
 
 BASE_URL = os.environ.get("BASE_URL")
+print(BASE_URL)
 BANK_AT_URL = f"{BASE_URL}/api/v1/bank/credit-info-update/"
 TOKEN_URL   = f"{BASE_URL}/api/v1/token/"
+print(TOKEN_URL)
 USERNAME    = "bank_resurs_at"
 PASSWORD    = "Dj@ngo123"
 

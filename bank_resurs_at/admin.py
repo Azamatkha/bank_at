@@ -5,7 +5,6 @@ from .admin_site import resurs_admin_site
 from .models import CreditData, ResursRequestLog, PaymentRequestLog, PaymentQueue
 
 class CreditDataAdmin(admin.ModelAdmin):
-
     list_display = (
         "credit_id", "loan_person_name", "loan_pnfl", "region",
         "contract_summ", "credit_balance", "type_of_credit"
@@ -14,13 +13,13 @@ class CreditDataAdmin(admin.ModelAdmin):
     search_fields = ("credit_id", "loan_pnfl", "loan_person_name")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).using("resurs")
+        return super().get_queryset(request)
 
     def save_model(self, request, obj, form, change):
-        obj.save(using="resurs")
+        obj.save()
 
     def delete_model(self, request, obj):
-        obj.delete(using="resurs")
+        obj.delete
 
 
 class ResursRequestLogAdmin(admin.ModelAdmin):
@@ -63,7 +62,7 @@ class PaymentRequestLogAdmin(admin.ModelAdmin):
     readonly_fields = ("credit_id", "paid_amount", "response_data", "status", "runtime")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).using("resurs")
+        return super().get_queryset(request)
 
     def runtime(self, obj):
         if obj.created_at:
