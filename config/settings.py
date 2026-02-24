@@ -61,7 +61,12 @@ SWAGGER_SETTINGS = {
     },
     'SECURITY_REQUIREMENTS': [{'Bearer': []}],
     'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com"
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

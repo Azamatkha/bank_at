@@ -5,5 +5,3 @@ urlpatterns = [
     path('credit-info/',CreditInfoAPIView.as_view()),
     path('payment/',PaymentCreateAPIView.as_view()),
 ]
-
-

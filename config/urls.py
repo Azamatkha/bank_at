@@ -20,13 +20,13 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('admins/resurs/', resurs_admin_site.urls),
-
     path('swagger/',schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
     path('api/v1/bank-resurs/',include('bank_resurs_at.urls')),
     path('api/v1/bank/', include('bank_at.urls')),
     path("api/v1/token/", TokenObtainPairView.as_view()),
 ]
 urlpatterns += [
+    path(''.TemplateView.as_view(template_name="home.html")),
     path('login/', TemplateView.as_view(template_name="login.html")),
     path('home/', TemplateView.as_view(template_name="home.html")),
     path('payment/', TemplateView.as_view(template_name="payment.html")),
