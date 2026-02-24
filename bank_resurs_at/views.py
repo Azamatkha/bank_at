@@ -21,7 +21,7 @@ class CreditInfoAPIView(APIView):
     def post(self, request):
         serializer = CreditRequestSerializer(data=request.data)
         if not serializer.is_valid():
-            ResursRequestLog.objects.using("resurs").create(
+            ResursRequestLog.objects.create(
                 credit_id=request.data.get("credit_id"),
                 pnfl=request.data.get("pnfl"),
                 status=status.HTTP_400_BAD_REQUEST
@@ -34,12 +34,12 @@ class CreditInfoAPIView(APIView):
         credit_id = serializer.validated_data.get("credit_id")
         pnfl = serializer.validated_data.get("pnfl")
         try:
-            credit = CreditData.objects.using("resurs").get(
+            credit = CreditData.objects.get(
                 credit_id=credit_id,
                 loan_pnfl=pnfl
             )
         except CreditData.DoesNotExist:
-            ResursRequestLog.objects.using("resurs").create(
+            ResursRequestLog.objects.create(
                 credit_id=credit_id,
                 pnfl=pnfl,
                 status=status.HTTP_204_NO_CONTENT
@@ -50,7 +50,7 @@ class CreditInfoAPIView(APIView):
             )
         response_serializer = CreditResponseSerializer(credit)
         response_data = response_serializer.data
-        ResursRequestLog.objects.using("resurs").create(
+        ResursRequestLog.objects.create(
             credit_id=credit_id,
             pnfl=pnfl,
             status=status.HTTP_200_OK
@@ -84,7 +84,7 @@ class PaymentCreateAPIView(APIView):
         paid_amount = serializer.validated_data["paid_amount"]
 
         try:
-            credit = CreditData.objects.using("resurs").get(credit_id=credit_id)
+            credit = CreditData.objects.get(credit_id=credit_id)
         except CreditData.DoesNotExist:
             return Response(
                 {"error": "Credit topilmadi"},
@@ -99,8 +99,8 @@ class PaymentCreateAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         credit.credit_balance = str(new_balance)
-        credit.save(using="resurs")
-        PaymentQueue.objects.using("resurs").create(
+        credit.save()
+        PaymentQueue.objects.create(
             credit_id=credit_id,
             paid_amount=paid_amount
         )
@@ -112,7 +112,7 @@ class PaymentCreateAPIView(APIView):
             "paid_percent_amount": credit.paid_precent_amount,
             "loan_paid_date": timezone.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        PaymentRequestLog.objects.using("resurs").create(
+        PaymentRequestLog.objects.create(
             credit_id=credit_id,
             paid_amount=paid_amount,
             response_data=response_data,

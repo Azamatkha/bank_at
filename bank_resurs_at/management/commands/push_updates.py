@@ -20,11 +20,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Update push loop started"))
         access_token = get_jwt()
         while True:
-            qs = PaymentQueue.objects.using("resurs").filter(sent=False).order_by("created_at")
+            qs = PaymentQueue.objects.filter(sent=False).order_by("created_at")
             items = []
             for p in qs:
                 try:
-                    credit = CreditData.objects.using("resurs").get(credit_id=p.credit_id)
+                    credit = CreditData.objects.get(credit_id=p.credit_id)
                 except CreditData.DoesNotExist:
                     continue
                 items.append({
