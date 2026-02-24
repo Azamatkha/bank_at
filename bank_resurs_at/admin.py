@@ -29,7 +29,7 @@ class ResursRequestLogAdmin(admin.ModelAdmin):
     readonly_fields = ("credit_id","pnfl","status","runtime")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).using("resurs")
+        return super().get_queryset(request)
 
     def runtime(self, obj):
         if obj.created_at:
@@ -46,7 +46,7 @@ class PaymentQueueAdmin(admin.ModelAdmin):
     ordering = ("-id",)
     display_fields = ("credit_id", "paid_amount", "sent", "runtime")
     def get_queryset(self, request):
-        return super().get_queryset(request).using("resurs")
+        return super().get_queryset(request)
 
     def runtime(self, obj):
         if obj.created_at:
