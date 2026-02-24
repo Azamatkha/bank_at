@@ -53,7 +53,7 @@ class Command(BaseCommand):
                     BANK_AT_URL,
                     json=payload,
                     headers={"Authorization": f"Bearer {access_token}"},
-                    timeout=5
+                    timeout=20
                 )
                 if r.status_code == 401:
                     access_token = get_jwt()
