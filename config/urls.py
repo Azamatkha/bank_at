@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('admins/resurs/', resurs_admin_site.urls),
 
-    path('',schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/',schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
     path('api/v1/bank-resurs/',include('bank_resurs_at.urls')),
     path('api/v1/bank/', include('bank_at.urls')),
     path("api/v1/token/", TokenObtainPairView.as_view()),
