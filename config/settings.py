@@ -1,16 +1,16 @@
 from datetime import timedelta
 from pathlib import Path
-import os
-import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = False
-ALLOWED_HOSTS = ["*"]
+SECRET_KEY = 'django-insecure-n!5gy%(8v9ww-=7965li)&cpp0=luveavgzcw_kx%396a+&=va'
+
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -91,15 +91,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
-
-DATABASES["default"]["OPTIONS"] = {
-    "options": "-c search_path=public,resurs"
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'bankat-db',
+        'USER': 'postgres',
+        'PASSWORD': '7711',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'OPTIONS': {
+            'options': '-c search_path=public,resurs'
+        }
+    }
 }
 
 # DATABASE_ROUTERS = ['config.db_router.DatabaseRouter']
