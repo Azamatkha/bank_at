@@ -61,11 +61,11 @@ class Command(BaseCommand):
                         BANK_AT_URL,
                         json=payload,
                         headers={"Authorization": f"Bearer {access_token}"},
-                        timeout=5
+                        timeout=20
                     )
                 ok = r.status_code == 200
             except Exception:
                 ok = False
             if items and ok:
                 qs.update(sent=True)
-            time.sleep(60)
+            time.sleep(120)
